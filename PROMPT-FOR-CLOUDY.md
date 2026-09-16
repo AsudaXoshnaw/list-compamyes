@@ -64,6 +64,19 @@ https://www.erbilchamber.org/companies.aspx
 
 ## پشکنین و تسلیمکردن
 
+## GitHub و نوێکردنەوەی خۆکار
+
+پڕۆژەکە بە GitHub ـەکەی من ببەستە و ئەم workflow ـە جێبەجێ بکە:
+
+- repository ـی GitHub لە environment variable ـەکانەوە وەربگرە، نەک لە کۆددا hard-code بکە.
+- هەر جار scraper داتای نوێی لە سەرچاوەکە وەرگرت یان code/config گۆڕدرا، تەنها ئەگەر گۆڕانێکی ڕاستەقینە هەبوو:
+  1. داتا و فایلە پەیوەندیدارەکان update بکە.
+  2. `git add`، `git commit` بە message ـێکی ڕوون، پاشان `git push` بکە بۆ branch ـی سەرەکی.
+- token، password و secret ـەکان هەرگیز لە source code، JSON، log یان commit ـدا مەخە؛ GitHub token لە secret/environment variable بەکاربهێنە.
+- push ـەکان duplicate مەکە: پێش commit دڵنیابە لە `git diff` و ئەگەر هیچ گۆڕانێک نەبوو commit مەکە.
+- ئەگەر push سەرکەوتوو نەبوو، داتا لە local cache هەڵبگرە، هەڵەکە لە UI پیشان بدە و دووبارەکردنەوەی push بۆ دواتر ڕێگەپێبدە.
+- لە README ڕوون بکەوە چۆن `GITHUB_REPOSITORY`، `GITHUB_TOKEN` و `GITHUB_BRANCH` دابین دەکرێن و چۆن auto-sync چالاک/ناچالاک دەکرێت.
+
 - پشکنینی responsive لە مۆبایل و desktop بکە.
 - دڵنیابە لەوەی pagination هەموو تۆمارەکان دەگۆڕێت.
 - دڵنیابە لەوەی هیچ field ـێک بە هەڵە لە field ـێکی تر نەنوسراوە.
