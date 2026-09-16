@@ -9,23 +9,32 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="topbar"><div class="brand"><span class="brand-mark">E</span><span><b>ئەنجوومەنی هەولێر</b><small>ڕێبەری کۆمپانیاکان</small></span></div><a href="https://www.erbilchamber.org/companies.aspx" target="_blank" rel="noreferrer">سەرچاوەی فەرمی ↗</a></header>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">E</span><span><b id="brandTitle">ئەنجوومەنی هەولێر</b><small id="brandSub">ڕێبەری کۆمپانیاکان</small></span></div>
+    <div class="topbar-actions">
+      <div class="lang-switch" id="langSwitch">
+        <button type="button" class="lang-btn" data-lang="ku">کوردی</button>
+        <button type="button" class="lang-btn" data-lang="ar">عربي</button>
+      </div>
+      <a id="officialLink" href="https://www.erbilchamber.org/companies.aspx" target="_blank" rel="noreferrer">سەرچاوەی فەرمی ↗</a>
+    </div>
+  </header>
   <main>
-    <section class="hero"><p class="eyebrow">ERBIL CHAMBER · COMPANY DIRECTORY</p><h1>کۆمپانیاکانی هەولێر</h1><p>زانیارییە سەرەکییەکانی ئەندامان بە شێوەیەکی سادە و ئاسان بگەڕێ.</p></section>
+    <section class="hero"><p class="eyebrow" id="eyebrow">ERBIL CHAMBER · COMPANY DIRECTORY</p><h1 id="heroTitle">کۆمپانیاکانی هەولێر</h1><p id="heroSub">زانیارییە سەرەکییەکانی ئەندامان بە شێوەیەکی سادە و ئاسان بگەڕێ.</p></section>
     <section class="toolbar">
       <label class="search"><span>⌕</span><input id="search" placeholder="بە ناو، چالاکی، بەڕێوەبەر یان شوێن بگەڕێ..." /></label>
       <div class="actions">
-        <button class="ghost" id="refresh">↻ نوێکردنەوەی داتا</button>
-        <button class="ghost" id="copyAll">⧉ کۆپی لیست</button>
-        <button class="export" id="export">⇩ هەناردەی Excel</button>
+        <button class="ghost" id="refresh">↻ <span id="refreshLabel">نوێکردنەوەی داتا</span></button>
+        <button class="ghost" id="copyAll">⧉ <span id="copyAllLabel">کۆپی لیست</span></button>
+        <button class="export" id="export">⇩ <span id="exportLabel">هەناردەی Excel</span></button>
       </div>
     </section>
     <section class="filters">
-      <select id="categoryFilter"><option value="">هەموو پۆلەکان</option></select>
-      <select id="statusFilter"><option value="">هەموو دۆخەکان</option></select>
+      <select id="categoryFilter"><option value="" id="allCategoriesOpt">هەموو پۆلەکان</option></select>
+      <select id="statusFilter"><option value="" id="allStatusesOpt">هەموو دۆخەکان</option></select>
       <select id="sortBy">
-        <option value="name">ناو (A-Z)</option>
-        <option value="membership">نوێترین ئەندامێتی</option>
+        <option value="name" id="sortNameOpt">ناو (A-Z)</option>
+        <option value="membership" id="sortMembershipOpt">نوێترین ئەندامێتی</option>
       </select>
     </section>
     <div id="progressBar" class="progress-wrap" hidden>
@@ -36,7 +45,7 @@
     <section id="grid" class="grid"></section>
     <nav class="pagination" id="pagination" aria-label="Pagination"></nav>
   </main>
-  <dialog id="detail"><button class="close" aria-label="داخستن">×</button><div id="detailBody"></div></dialog>
+  <dialog id="detail"><button class="close" id="closeDetail" aria-label="داخستن">×</button><div id="detailBody"></div></dialog>
   <div id="toast"></div>
   <script src="app.js"></script>
 </body>

@@ -2,6 +2,73 @@ const $ = (s) => document.querySelector(s);
 const grid = $('#grid'), dialog = $('#detail');
 const PAGE_SIZE = 12;
 
+const I18N = {
+  ku: {
+    brandTitle: 'ئەنجوومەنی هەولێر',
+    brandSub: 'ڕێبەری کۆمپانیاکان',
+    officialLink: 'سەرچاوەی فەرمی ↗',
+    heroTitle: 'کۆمپانیاکانی هەولێر',
+    heroSub: 'زانیارییە سەرەکییەکانی ئەندامان بە شێوەیەکی سادە و ئاسان بگەڕێ.',
+    searchPlaceholder: 'بە ناو، چالاکی، بەڕێوەبەر یان شوێن بگەڕێ...',
+    refresh: 'نوێکردنەوەی داتا',
+    copyAll: 'کۆپی لیست',
+    exportBtn: 'هەناردەی Excel',
+    allCategories: 'هەموو پۆلەکان',
+    allStatuses: 'هەموو دۆخەکان',
+    sortName: 'ناو (A-Z)',
+    sortMembership: 'نوێترین ئەندامێتی',
+    countSuffix: 'کۆمپانیا پیشان دەدرێت',
+    updatedPrefix: 'نوێکراوەتەوە',
+    closeLabel: 'داخستن',
+    more: 'زیاتر',
+    fManager: 'MANAGER', fTitle: 'TITLE', fLocation: 'LOCATION', fPhone: 'PHONE', fEmail: 'EMAIL',
+    fMembership: 'MEMBERSHIP', fEndDate: 'END DATE', fCategory: 'CATEGORY', fActivities: 'ACTIVITIES',
+    mapBtn: '⌖ کردنەوە لە Maps',
+    copyPhoneBtn: '☎ کۆپی‌کردنی ژمارە',
+    copyInfoBtn: '⧉ کۆپی هەموو زانیاری',
+    sourceLink: 'سەرچاوەی فەرمی ↗',
+    copiedToast: 'زانیارییەکان کۆپی کران',
+    noBackendToast: 'backendی زیندوو بەردەست نییە؛ داتای هەڵگیراوی پێشوو پیشان دەدرێت',
+    progressList: (p, c) => `پەیجی ${p ?? '?'} ... ${c} کۆمپانیا خوێندرایەوە`,
+    progressDetail: (i, t) => `وردەکاری کۆمپانیا ${i} لە ${t}`,
+    src: { cache: 'cache', 'cache-fallback': 'cache (fallback)', live: 'live', 'static-file': 'saved snapshot' },
+  },
+  ar: {
+    brandTitle: 'غرفة تجارة أربيل',
+    brandSub: 'دليل الشركات',
+    officialLink: 'المصدر الرسمي ↗',
+    heroTitle: 'شركات أربيل',
+    heroSub: 'تصفح المعلومات الأساسية للأعضاء بطريقة سهلة وبسيطة.',
+    searchPlaceholder: 'ابحث بالاسم أو النشاط أو المدير أو الموقع...',
+    refresh: 'تحديث البيانات',
+    copyAll: 'نسخ القائمة',
+    exportBtn: 'تصدير إلى Excel',
+    allCategories: 'كل الفئات',
+    allStatuses: 'كل الحالات',
+    sortName: 'الاسم (A-Z)',
+    sortMembership: 'أحدث عضوية',
+    countSuffix: 'شركة معروضة',
+    updatedPrefix: 'آخر تحديث',
+    closeLabel: 'إغلاق',
+    more: 'المزيد',
+    fManager: 'المدير', fTitle: 'المنصب', fLocation: 'الموقع', fPhone: 'الهاتف', fEmail: 'البريد الإلكتروني',
+    fMembership: 'بداية العضوية', fEndDate: 'تاريخ الانتهاء', fCategory: 'الفئة', fActivities: 'الأنشطة',
+    mapBtn: '⌖ فتح الموقع في خرائط Google',
+    copyPhoneBtn: '☎ نسخ الرقم',
+    copyInfoBtn: '⧉ نسخ كل المعلومات',
+    sourceLink: 'المصدر الرسمي ↗',
+    copiedToast: 'تم نسخ المعلومات',
+    noBackendToast: 'الخادم المباشر غير متاح؛ يتم عرض آخر بيانات محفوظة',
+    progressList: (p, c) => `الصفحة ${p ?? '?'} ... تمت قراءة ${c} شركة`,
+    progressDetail: (i, t) => `تفاصيل الشركة ${i} من ${t}`,
+    src: { cache: 'مخزّن مؤقتًا', 'cache-fallback': 'مخزّن (احتياطي)', live: 'مباشر', 'static-file': 'نسخة محفوظة' },
+  },
+};
+
+let lang = 'ku';
+try { lang = localStorage.getItem('ecc_lang') || 'ku'; } catch (e) { /* private mode etc. */ }
+function t(key) { return I18N[lang][key]; }
+
 let companies = [];
 let activePage = 1;
 let currentItems = [];
@@ -27,10 +94,13 @@ function populateFilters() {
     if (c.status && c.status !== '—') statuses.add(c.status);
   });
   const catSel = $('#categoryFilter'), statSel = $('#statusFilter');
-  catSel.innerHTML = '<option value="">هەموو پۆلەکان</option>' +
+  const prevCat = catSel.value, prevStat = statSel.value;
+  catSel.innerHTML = `<option value="">${t('allCategories')}</option>` +
     [...categories].sort().map((c) => `<option value="${escapeAttr(c)}">${c}</option>`).join('');
-  statSel.innerHTML = '<option value="">هەموو دۆخەکان</option>' +
+  statSel.innerHTML = `<option value="">${t('allStatuses')}</option>` +
     [...statuses].sort().map((c) => `<option value="${escapeAttr(c)}">${c}</option>`).join('');
+  catSel.value = prevCat;
+  statSel.value = prevStat;
 }
 
 function escapeAttr(s) {
@@ -67,7 +137,7 @@ function render(items = currentItems) {
   if (activePage > totalPages) activePage = totalPages;
   const shown = items.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);
 
-  $('#count').textContent = `${items.length} کۆمپانیا پیشان دەدرێت`;
+  $('#count').textContent = `${items.length} ${t('countSuffix')}`;
 
   grid.innerHTML = shown.map((c) => `
     <article class="card">
@@ -75,7 +145,7 @@ function render(items = currentItems) {
       <div class="globe">◎</div>
       <h2>${c.companyName}</h2>
       <p>${dash(c.activities)}</p>
-      <button class="more" data-id="${c.id}">زیاتر</button>
+      <button class="more" data-id="${c.id}">${t('more')}</button>
     </article>
   `).join('');
 
@@ -100,24 +170,24 @@ function show(c) {
         <span class="status">${dash(c.status)}</span>
       </div>
       <div class="info">
-        <div class="field"><b>MANAGER</b><span>${dash(c.manager)}</span></div>
-        <div class="field"><b>TITLE</b><span>${dash(c.managerTitle)}</span></div>
-        <div class="field"><b>LOCATION</b><span>${dash(c.location)}</span></div>
-        <div class="field"><b>PHONE</b><span>${dash(c.phone)}</span></div>
-        <div class="field"><b>EMAIL</b><span>${dash(c.email)}</span></div>
-        <div class="field"><b>MEMBERSHIP</b><span>${dash(c.membershipDate)}</span></div>
-        <div class="field"><b>END DATE</b><span>${dash(c.endDate)}</span></div>
-        <div class="field"><b>CATEGORY</b><span>${dash(c.category)}</span></div>
+        <div class="field"><b>${t('fManager')}</b><span>${dash(c.manager)}</span></div>
+        <div class="field"><b>${t('fTitle')}</b><span>${dash(c.managerTitle)}</span></div>
+        <div class="field"><b>${t('fLocation')}</b><span>${dash(c.location)}</span></div>
+        <div class="field"><b>${t('fPhone')}</b><span>${dash(c.phone)}</span></div>
+        <div class="field"><b>${t('fEmail')}</b><span>${dash(c.email)}</span></div>
+        <div class="field"><b>${t('fMembership')}</b><span>${dash(c.membershipDate)}</span></div>
+        <div class="field"><b>${t('fEndDate')}</b><span>${dash(c.endDate)}</span></div>
+        <div class="field"><b>${t('fCategory')}</b><span>${dash(c.category)}</span></div>
       </div>
       <section class="activities">
-        <h3>ACTIVITIES</h3>
+        <h3>${t('fActivities')}</h3>
         <div class="chips">${dash(c.activities).split(',').map((x) => `<span class="chip">${x.trim()}</span>`).join('')}</div>
       </section>
       <div class="detail-actions">
-        <button class="map" id="map">⌖ کردنەوە لە Maps</button>
-        <button class="copy" id="copyPhone">☎ کۆپی‌کردنی ژمارە</button>
-        <button class="copy" id="copyInfo">⧉ کۆپی هەموو زانیاری</button>
-        <a class="copy" target="_blank" href="${c.sourceUrl}">سەرچاوەی فەرمی ↗</a>
+        <button class="map" id="map">${t('mapBtn')}</button>
+        <button class="copy" id="copyPhone">${t('copyPhoneBtn')}</button>
+        <button class="copy" id="copyInfo">${t('copyInfoBtn')}</button>
+        <a class="copy" target="_blank" href="${c.sourceUrl}">${t('sourceLink')}</a>
       </div>
     </div>
   `;
@@ -132,13 +202,10 @@ function show(c) {
 
 function copy(text) {
   navigator.clipboard.writeText(text);
-  const t = $('#toast');
-  t.textContent = 'زانیارییەکان کۆپی کران';
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 1800);
+  showToast(t('copiedToast'));
 }
 
-$('.close').onclick = () => dialog.close();
+$('#closeDetail').onclick = () => dialog.close();
 $('#search').oninput = applyFilters;
 $('#categoryFilter').onchange = applyFilters;
 $('#statusFilter').onchange = applyFilters;
@@ -169,10 +236,10 @@ function setProgress(state) {
   let text = '';
   let pct = 0;
   if (state.phase === 'list') {
-    text = `پەیجی ${state.page ?? '?'} ... ${state.collected} کۆمپانیا خوێندرایەوە`;
+    text = t('progressList')(state.page, state.collected);
     pct = state.page ? Math.min(40, (state.page / 14) * 40) : 5;
   } else if (state.phase === 'detail') {
-    text = `وردەکاری کۆمپانیا ${state.detailIndex} لە ${state.detailTotal}`;
+    text = t('progressDetail')(state.detailIndex, state.detailTotal);
     pct = state.detailTotal ? 40 + (state.detailIndex / state.detailTotal) * 60 : 40;
   }
   $('#progressFill').style.width = `${pct}%`;
@@ -194,13 +261,15 @@ async function pollStatus() {
   }
 }
 
+let lastData = null;
+
 function setUpdatedAt(data) {
+  lastData = data;
   const el = $('#updatedAt');
   if (!data.scrapedAt) { el.textContent = ''; return; }
   const d = new Date(data.scrapedAt);
-  const srcLabels = { cache: 'cache', 'cache-fallback': 'cache (fallback)', live: 'live', 'static-file': 'saved snapshot' };
-  const src = srcLabels[data.source] || data.source || 'live';
-  el.textContent = `نوێکراوەتەوە: ${d.toLocaleString('en-GB')} (${src})`;
+  const src = t('src')[data.source] || data.source || t('src').live;
+  el.textContent = `${t('updatedPrefix')}: ${d.toLocaleString('en-GB')} (${src})`;
 }
 
 let backendAvailable = true;
@@ -226,7 +295,7 @@ async function loadCompanies(refresh = false) {
     const res = await fetch('companies-cache.json');
     data = await res.json();
     data.source = 'static-file';
-    if (refresh) showToast('backendی زیندوو بەردەست نییە؛ داتای هەڵگیراوی پێشوو پیشان دەدرێت');
+    if (refresh) showToast(t('noBackendToast'));
   }
 
   companies = data.companies || [];
@@ -256,4 +325,38 @@ $('#refresh').onclick = async () => {
   }
 };
 
+function applyStaticTranslations() {
+  $('#brandTitle').textContent = t('brandTitle');
+  $('#brandSub').textContent = t('brandSub');
+  $('#officialLink').textContent = t('officialLink');
+  $('#heroTitle').textContent = t('heroTitle');
+  $('#heroSub').textContent = t('heroSub');
+  $('#search').placeholder = t('searchPlaceholder');
+  $('#refreshLabel').textContent = t('refresh');
+  $('#copyAllLabel').textContent = t('copyAll');
+  $('#exportLabel').textContent = t('exportBtn');
+  // #allCategoriesOpt / #allStatusesOpt are regenerated by populateFilters()
+  // (which loses the id), so their "all" text is translated there instead.
+  $('#sortNameOpt').textContent = t('sortName');
+  $('#sortMembershipOpt').textContent = t('sortMembership');
+  $('#closeDetail').setAttribute('aria-label', t('closeLabel'));
+  document.documentElement.lang = lang;
+  document.querySelectorAll('.lang-btn').forEach((b) => b.classList.toggle('active', b.dataset.lang === lang));
+}
+
+function setLang(next) {
+  lang = next;
+  try { localStorage.setItem('ecc_lang', lang); } catch (e) { /* private mode etc. */ }
+  applyStaticTranslations();
+  populateFilters();
+  if (companies.length) applyFilters();
+  if (lastData) setUpdatedAt(lastData);
+  if (dialog.open) dialog.close();
+}
+
+document.querySelectorAll('.lang-btn').forEach((b) => {
+  b.onclick = () => setLang(b.dataset.lang);
+});
+
+applyStaticTranslations();
 loadCompanies(false);
