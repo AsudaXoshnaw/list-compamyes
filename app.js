@@ -198,17 +198,37 @@ function setUpdatedAt(data) {
   const el = $('#updatedAt');
   if (!data.scrapedAt) { el.textContent = ''; return; }
   const d = new Date(data.scrapedAt);
-  const src = data.source === 'cache' ? 'cache' : data.source === 'cache-fallback' ? 'cache (fallback)' : 'live';
+  const srcLabels = { cache: 'cache', 'cache-fallback': 'cache (fallback)', live: 'live', 'static-file': 'saved snapshot' };
+  const src = srcLabels[data.source] || data.source || 'live';
   el.textContent = `نوێکراوەتەوە: ${d.toLocaleString('en-GB')} (${src})`;
 }
 
+let backendAvailable = true;
+
 async function loadCompanies(refresh = false) {
-  if (refresh) {
+  if (refresh && backendAvailable) {
     clearTimeout(pollTimer);
     pollStatus();
   }
-  const res = await fetch(`/api/companies${refresh ? '?refresh=1' : ''}`);
-  const data = await res.json();
+
+  let data;
+  try {
+    if (!backendAvailable) throw new Error('backend unavailable');
+    const res = await fetch(`/api/companies${refresh ? '?refresh=1' : ''}`);
+    if (!res.ok) throw new Error(`api status ${res.status}`);
+    data = await res.json();
+  } catch (e) {
+    // No backend here (e.g. static hosting like Netlify with no Node server) —
+    // fall back to the last scraped snapshot shipped alongside the app.
+    backendAvailable = false;
+    clearTimeout(pollTimer);
+    $('#progressBar').hidden = true;
+    const res = await fetch('companies-cache.json');
+    data = await res.json();
+    data.source = 'static-file';
+    if (refresh) showToast('backendی زیندوو بەردەست نییە؛ داتای هەڵگیراوی پێشوو پیشان دەدرێت');
+  }
+
   companies = data.companies || [];
   setUpdatedAt(data);
   populateFilters();
@@ -218,6 +238,13 @@ async function loadCompanies(refresh = false) {
     const expected = data.expectedFromPages;
     console.log(`Scraped ${data.pagesScraped} list pages, expected ~${expected} rows, collected ${companies.length} unique companies.`);
   }
+}
+
+function showToast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
 }
 
 $('#refresh').onclick = async () => {
