@@ -152,6 +152,12 @@ async function scrapeAllListPages(onProgress) {
     const { panelHtml, fields: updatedFields } = await postBack(fields, target, jar);
     fields = updatedFields;
     $ = cheerio.load(panelHtml);
+
+    // The site's "..." pager can loop back into an already-seen window past the
+    // last real page instead of disappearing, so bail out if we didn't advance.
+    const { currentPage: newPage } = parsePager($);
+    if (newPage <= currentPage) break;
+
     pageNum++;
     if (pageNum > 2000) break; // safety guard
   }
@@ -212,19 +218,23 @@ async function scrapeAll(onProgress) {
   const jar = {};
   for (let i = 0; i < listCompanies.length; i++) {
     const c = listCompanies[i];
+    let detail;
     try {
-      const detail = await scrapeDetail(c.id, jar);
-      results.push(detail);
+      detail = await scrapeDetail(c.id, jar);
     } catch (e) {
-      results.push({
+      detail = {
         id: c.id,
-        companyName: c.name || '—',
-        activities: c.activity || '—',
-        manager: '—', managerTitle: '—', location: '—', phone: '—', email: '—',
-        membershipDate: '—', endDate: '—', category: '—', status: '—',
+        companyName: '—', activities: '—', manager: '—', managerTitle: '—', location: '—',
+        phone: '—', email: '—', membershipDate: '—', endDate: '—', category: '—', status: '—',
         sourceUrl: `${BASE}/companiesDetail.aspx?id=${c.id}`, imageUrl: '—',
-      });
+      };
     }
+    // The source site itself intermittently 500s on a handful of detail pages
+    // (confirmed by retrying the raw request directly); fall back to what the
+    // list page already gave us rather than leaving genuinely-known fields blank.
+    if (detail.companyName === '—' && c.name) detail.companyName = c.name;
+    if (detail.activities === '—' && c.activity) detail.activities = c.activity;
+    results.push(detail);
     if (onProgress) onProgress({ phase: 'detail', index: i + 1, total: listCompanies.length });
   }
 

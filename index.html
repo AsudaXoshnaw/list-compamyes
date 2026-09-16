@@ -12,8 +12,27 @@
   <header class="topbar"><div class="brand"><span class="brand-mark">E</span><span><b>ئەنجوومەنی هەولێر</b><small>ڕێبەری کۆمپانیاکان</small></span></div><a href="https://www.erbilchamber.org/companies.aspx" target="_blank" rel="noreferrer">سەرچاوەی فەرمی ↗</a></header>
   <main>
     <section class="hero"><p class="eyebrow">ERBIL CHAMBER · COMPANY DIRECTORY</p><h1>کۆمپانیاکانی هەولێر</h1><p>زانیارییە سەرەکییەکانی ئەندامان بە شێوەیەکی سادە و ئاسان بگەڕێ.</p></section>
-    <section class="toolbar"><label class="search"><span>⌕</span><input id="search" placeholder="بە ناوی کۆمپانیا یان چالاکی بگەڕێ..." /></label><div class="actions"><button class="ghost" id="copyAll">⧉ کۆپی لیست</button><button class="export" id="export">⇩ هەناردەی Excel</button></div></section>
-    <div class="meta"><span id="count"></span><span>نوێکراوەتەوە: ١٦ی ئەیلوولی ٢٠٢٦</span></div>
+    <section class="toolbar">
+      <label class="search"><span>⌕</span><input id="search" placeholder="بە ناو، چالاکی، بەڕێوەبەر یان شوێن بگەڕێ..." /></label>
+      <div class="actions">
+        <button class="ghost" id="refresh">↻ نوێکردنەوەی داتا</button>
+        <button class="ghost" id="copyAll">⧉ کۆپی لیست</button>
+        <button class="export" id="export">⇩ هەناردەی Excel</button>
+      </div>
+    </section>
+    <section class="filters">
+      <select id="categoryFilter"><option value="">هەموو پۆلەکان</option></select>
+      <select id="statusFilter"><option value="">هەموو دۆخەکان</option></select>
+      <select id="sortBy">
+        <option value="name">ناو (A-Z)</option>
+        <option value="membership">نوێترین ئەندامێتی</option>
+      </select>
+    </section>
+    <div id="progressBar" class="progress-wrap" hidden>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progressText"></span>
+    </div>
+    <div class="meta"><span id="count"></span><span id="updatedAt"></span></div>
     <section id="grid" class="grid"></section>
     <nav class="pagination" id="pagination" aria-label="Pagination"></nav>
   </main>
