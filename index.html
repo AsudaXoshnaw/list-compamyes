@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ku" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ڕێبەری کۆمپانیاکان | ئەنجوومەنی بازرگانی هەولێر</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar"><div class="brand"><span class="brand-mark">E</span><span><b>ئەنجوومەنی هەولێر</b><small>ڕێبەری کۆمپانیاکان</small></span></div><a href="https://www.erbilchamber.org/companies.aspx" target="_blank" rel="noreferrer">سەرچاوەی فەرمی ↗</a></header>
+  <main>
+    <section class="hero"><p class="eyebrow">ERBIL CHAMBER · COMPANY DIRECTORY</p><h1>کۆمپانیاکانی هەولێر</h1><p>زانیارییە سەرەکییەکانی ئەندامان بە شێوەیەکی سادە و ئاسان بگەڕێ.</p></section>
+    <section class="toolbar"><label class="search"><span>⌕</span><input id="search" placeholder="بە ناوی کۆمپانیا یان چالاکی بگەڕێ..." /></label><div class="actions"><button class="ghost" id="copyAll">⧉ کۆپی لیست</button><button class="export" id="export">⇩ هەناردەی Excel</button></div></section>
+    <div class="meta"><span id="count"></span><span>نوێکراوەتەوە: ١٦ی ئەیلوولی ٢٠٢٦</span></div>
+    <section id="grid" class="grid"></section>
+    <nav class="pagination" id="pagination" aria-label="Pagination"></nav>
+  </main>
+  <dialog id="detail"><button class="close" aria-label="داخستن">×</button><div id="detailBody"></div></dialog>
+  <div id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
